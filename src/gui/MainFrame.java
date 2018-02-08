@@ -1,3 +1,5 @@
+package gui;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,13 +15,16 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import controller.Controller;
+
 public class MainFrame extends JFrame {
 
 	private TextPanel textPanel;
 	private Toolbar toolbar;
 	private FormPanel formPanel;
 	private JFileChooser chooser;
-	
+	private Controller controller;
+
 	public MainFrame() {
 		super("Hello World");
 
@@ -28,8 +33,11 @@ public class MainFrame extends JFrame {
 		textPanel = new TextPanel();
 		toolbar = new Toolbar();
 		formPanel = new FormPanel();
-		
+
 		chooser = new JFileChooser();
+		chooser.addChoosableFileFilter(new PersonFileFilter());
+
+		controller = new Controller();
 
 		setJMenuBar(createMenuBar());
 
@@ -41,12 +49,7 @@ public class MainFrame extends JFrame {
 
 		formPanel.setFormListener(new FormListener() {
 			public void formEventOccured(FormEvent e) {
-
-				FormDataObject form = e.getFormDataObject();
-
-				textPanel.appendText(form.getName() + " : " + form.getOccupation() + " : " + form.getAgeCategory()
-						+ " : " + form.getEmpCat() + " : " + form.getTaxId() + " : " + form.isUsCitizen() + " : "
-						+ form.getGender() + "\n");
+				controller.addPerson(e.getFormDataObject());
 			}
 		});
 
@@ -97,18 +100,26 @@ public class MainFrame extends JFrame {
 		exitItem.setMnemonic(KeyEvent.VK_X);
 		exitItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int action = JOptionPane.showConfirmDialog(MainFrame.this, "Do you really want to exit the application?",
-						"Confirm exit", JOptionPane.OK_CANCEL_OPTION);
+				int action = JOptionPane.showConfirmDialog(MainFrame.this,
+						"Do you really want to exit the application?", "Confirm exit", JOptionPane.OK_CANCEL_OPTION);
 				if (action == JOptionPane.OK_OPTION) {
 					System.exit(0);
 				}
 			}
 		});
 		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-		
+
 		importDataItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent actionEvent) {
 				if (chooser.showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
+					System.out.println(chooser.getSelectedFile());
+				}
+			}
+		});
+
+		exportDataItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				if (chooser.showSaveDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION) {
 					System.out.println(chooser.getSelectedFile());
 				}
 			}
